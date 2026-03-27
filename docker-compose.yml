@@ -1,0 +1,38 @@
+version: "3.9"
+ 
+services:
+ 
+  # ── FastAPI Backend ──────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: healthpulse_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # Persist SQLite DB across container restarts
+      - ./backend/healthpulse.db:/app/healthpulse.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+ 
+  # ── Streamlit Dashboard ──────────────────────────────────────────────────
+  dashboard:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dashboard
+    container_name: healthpulse_dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE=http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+ 
