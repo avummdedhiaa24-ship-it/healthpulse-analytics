@@ -1,4 +1,4 @@
-from nlp_utils import extract_entities, compute_similarity
+from app.nlp_utils import extract_entities, compute_similarity
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.db.session import engine
